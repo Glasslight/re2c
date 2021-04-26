@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Build instructions &#8212; re2c 2.1.1 documentation</title>
+    <link rel="stylesheet" href="../_static/theme-re2c.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="alternate" type="application/atom+xml" href="../feed/atom.xml" title="Atom 1.0" />
+    
+ 
+  </head><body>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="re2c-logo">
+    re2c
+</div>
+
+<h3><a href="../index.html">Home</a></h3>
+<div class="re2c-toc-global">
+    <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../manual/manual_c.html">User manual (C)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manual/manual_go.html">User manual (Go)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Build instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks/benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases/release_notes.html">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases/changelog/changelog.html">Changelog</a></li>
+</ul>
+
+</div>
+    <h3>Build instructions</h3>
+    <div class="re2c-toc-local">
+        <ul>
+<li><a class="reference internal" href="#">Build instructions</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li><a class="reference internal" href="#build-autotools">Build (Autotools)</a></li>
+<li><a class="reference internal" href="#build-cmake">Build (CMake)</a></li>
+<li><a class="reference internal" href="#test">Test</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="build-instructions">
+<h1>Build instructions<a class="headerlink" href="#build-instructions" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>To build re2c from a release tarball one needs only a C++ compiler, and optionally Bash to run the tests.</p>
+<p>To develop re2c (or to regenerate precompiled files) one also needs either CMake or Autotools (including Libtool), Bison (to rebuild parsers),
+rst2man (to rebuild documentation), Sphinx (to rebuild the website) and optionally Mingw and Wine (to
+run Windows tests on Linux). A few occasional helper scripts are written in Haskell,
+but they are not essential for re2c development.</p>
+<p>Re2c is a self-hosting lexer generator, meaning that parts of its source code are written in re2c (namely, all the source <em>.re</em> files).
+Consequently, it needs an existing (and recent enough) re2c executable to rebuild these files.
+To bootstrap itself, re2c distributes precompiled files for each <em>.re</em> file.
+These files can be used as long as the <em>.re</em> files are unchanged.</p>
+<p>Re2c has two build systems, Autotools and CMake.
+Both of them are maintained and tested continuously on Travis CI.</p>
+</div>
+<div class="section" id="build-autotools">
+<h2>Build (Autotools)<a class="headerlink" href="#build-autotools" title="Permalink to this headline">¶</a></h2>
+<p>To build from repository (<em>not</em> from a release tarball), first of all run Autotools:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ autoreconf -i -W all
+</pre></div>
+</div>
+<p>In-tree build:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./configure <span class="o">&amp;&amp;</span> make <span class="o">&amp;&amp;</span> make install
+</pre></div>
+</div>
+<p>Out-of-tree build:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ mkdir .build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> .build <span class="o">&amp;&amp;</span> ../configure <span class="o">&amp;&amp;</span> make <span class="o">&amp;&amp;</span> make install
+</pre></div>
+</div>
+<p>Configure options specific to re2c (to see all options run <code class="docutils literal notranslate"><span class="pre">configure</span> <span class="pre">--help</span></code>):</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">--enable-debug</span></code></dt><dd><p>Enable debug checks in the re2c source code.
+Also enables debug options.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--enable-golang</span></code></dt><dd><p>Build re2go (identical to <code class="docutils literal notranslate"><span class="pre">re2c</span> <span class="pre">--lang</span> <span class="pre">go</span></code>).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--enable-libs</span></code></dt><dd><p>Build the experimental libre2c library that provides POSIX <code class="docutils literal notranslate"><span class="pre">regcomp</span></code>/<code class="docutils literal notranslate"><span class="pre">regexec</span></code>/<code class="docutils literal notranslate"><span class="pre">regfree</span></code> interface to re2c.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--enable-lexers</span></code></dt><dd><p>Enable regeneration of lexers from <em>.re</em> files (as opposed to using precompiled bootstrap files).
+If this option is used, <code class="docutils literal notranslate"><span class="pre">RE2C_FOR_BUILD</span></code> variable should contain a path to re2c executable.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--enable-docs</span></code></dt><dd><p>Enable regeneration of documentation (requires rst2man).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--enable-benchmarks</span></code></dt><dd><p>Build benchmarks (requires google benchmarks library).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--enable-benchmarks-regenerate</span></code></dt><dd><p>Regenerate C code for Ragel and Kleenex benchmarks (this requires
+downloading and building Ragel and Kleenex). Note that re2c benchmarks are
+always regenerated regardless of this option.</p>
+</dd>
+</dl>
+<p>Cross-compile re2c for Windows (for some Mingw versions you might have to use <code class="docutils literal notranslate"><span class="pre">-std=gnu++11</span></code> compiler option):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./configure --host i686-w64-ming32 <span class="se">\</span>
+    <span class="nv">LDFLAGS</span><span class="o">=</span><span class="s2">&quot;-static -static-libstdc++ -static-libgcc&quot;</span>
+</pre></div>
+</div>
+<p>There is a bunch of build scripts for specialized builds with Asan, Ubsan, GLIBCXX_DEBUG, etc. in the <em>build</em> subdirectory.</p>
+</div>
+<div class="section" id="build-cmake">
+<h2>Build (CMake)<a class="headerlink" href="#build-cmake" title="Permalink to this headline">¶</a></h2>
+<p>In-tree build (CMake puts object files in a separate subdirectory, but autogenerated files are in the source directory):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ cmake . <span class="o">&amp;&amp;</span> cmake --build .
+</pre></div>
+</div>
+<p>Out-of-tree build:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ mkdir .build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> .build <span class="o">&amp;&amp;</span> cmake .. <span class="o">&amp;&amp;</span> cmake --build .
+</pre></div>
+</div>
+<p>CMake configuration options that are specific to re2c or have re2c-specific behaviour:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">-DCMAKE_BUILD_TYPE=Debug</span></code></dt><dd><p>Enable debug checks in the re2c source code.
+Also enables debug options.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-DRE2C_BUILD_RE2GO=yes</span></code></dt><dd><p>Build re2go executable (an alias to <code class="docutils literal notranslate"><span class="pre">re2c</span> <span class="pre">--lang</span> <span class="pre">go</span></code>). Enabled by default.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-DRE2C_BUILD_LIBS=yes</span></code></dt><dd><p>Build the experimental libre2c library that provides POSIX <code class="docutils literal notranslate"><span class="pre">regcomp</span></code>/<code class="docutils literal notranslate"><span class="pre">regexec</span></code>/<code class="docutils literal notranslate"><span class="pre">regfree</span></code> interface to re2c.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-DRE2C_REBUILD_LEXERS=yes</span></code></dt><dd><p>Enable regeneration of lexers from <em>.re</em> files (as opposed to using precompiled bootstrap files).
+If this option is used, <code class="docutils literal notranslate"><span class="pre">-DRE2C_FOR_BUILD</span></code> option should be set to a path to re2c executable.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-DRE2C_REBUILD_DOCS=yes</span></code></dt><dd><p>Enable regeneration of documentation (requires rst2man).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-DRE2C_BUILD_BENCHMARKS=yes</span></code></dt><dd><p>Build benchmarks (requires google benchmarks library).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-DRE2C_REGEN_BENCHMARKS=yes</span></code></dt><dd><p>Regenerate C code for Ragel and Kleenex benchmarks (this requires
+downloading and building Ragel and Kleenex). Note that re2c benchmarks are
+always regenerated regardless of this option.</p>
+</dd>
+</dl>
+<p>Cross-compile re2c for Windows using Mingw:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ cmake . -DCMAKE_TOOLCHAIN_FILE<span class="o">=</span>cmake/Toolchain-cross-mingw32-linux.cmake <span class="se">\</span>
+    -DCMAKE_EXE_LINKER_FLAGS<span class="o">=</span><span class="s2">&quot;-static -static-libstdc++ -static-libgcc&quot;</span> <span class="se">\</span>
+    -DBUILD_SHARED_LIBS<span class="o">=</span>no
+</pre></div>
+</div>
+<p>There is a bunch of build scripts for specialized builds with Asan, Ubsan, GLIBCXX_DEBUG, etc. in the <em>build</em> subdirectory.</p>
+</div>
+<div class="section" id="test">
+<h2>Test<a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h2>
+<p>Re2c has a main test suite and a couple of small unit tests. Run them all:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make check
+</pre></div>
+</div>
+<p>Run only the main test suite and watch the progress dumped on stdout:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./run_tests.sh -j&lt;N&gt;
+</pre></div>
+</div>
+<p>Run the main test suite with <code class="docutils literal notranslate"><span class="pre">--skeleton</span></code> re2c option:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./run_tests.sh --skeleton
+</pre></div>
+</div>
+<p>Run the test suite under Valgrind (takes some time and memory):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make vtests
+</pre></div>
+</div>
+<p>Test mingw builds with Wine:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make wtests
+</pre></div>
+</div>
+<p>Check the distribution:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make distcheck
+</pre></div>
+</div>
+<p>Re2c provides a helper script build/__alltest.sh that builds and tests various
+re2c build flavours with Asan, Ubsan, GLIBCXX_DEBUG, etc.
+There is a couple of fuzz-testing Haskell scripts in the <em>fuzz</em> subdirectory;
+they are based on the QuickCheck library and can be easily modified to fuzz-test
+various aspects of re2c by comparing current re2c version against older versions
+or against other regular expression libraries.</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+      Last updated on Apr 26, 2021.
+    </div>
+  </body>
+</html>
